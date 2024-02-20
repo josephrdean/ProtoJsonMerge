@@ -8,16 +8,15 @@ import com.google.protobuf.InvalidProtocolBufferException;
 import com.google.protobuf.Message;
 import com.google.protobuf.DescriptorProtos;
 
-/**
- *
- * @param baseMessageType The name of the root message type.
- * @param descriptorFile The protoc generated Descriptor File that holds definitions of the message
- *                       classes we're parsing.
- * @param baseFile The root of the file hierarchy to parse.
- */
 public class ProtobufMultiFileParser {
 
-    // Parses a set
+    /**
+     *
+     * @param baseMessageType The name of the root message type.
+     * @param descriptorFile The protoc generated Descriptor File that holds definitions of the message
+     *                       classes we're parsing.
+     * @param baseFile The root of the file hierarchy to parse.
+     */
     public static Message Parse(String baseMessageType, File descriptorFile, File baseFile) throws InvalidProtocolBufferException {
 
         byte[] descriptorBytes;
