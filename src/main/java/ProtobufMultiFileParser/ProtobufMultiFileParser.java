@@ -1,12 +1,17 @@
 package ProtobufMultiFileParser;
 
+import com.google.protobuf.DescriptorProtos;
+import com.google.protobuf.Descriptors;
+import com.google.protobuf.DynamicMessage;
+import com.google.protobuf.Message;
+import com.google.protobuf.util.JsonFormat;
+
 import java.io.File;
 import java.io.IOException;
+import java.io.InputStream;
 import java.nio.file.Files;
-
-import com.google.protobuf.InvalidProtocolBufferException;
-import com.google.protobuf.Message;
-import com.google.protobuf.DescriptorProtos;
+import java.nio.file.Path;
+import java.util.List;
 
 public class ProtobufMultiFileParser {
 
@@ -17,18 +22,43 @@ public class ProtobufMultiFileParser {
      *                       classes we're parsing.
      * @param baseFile The root of the file hierarchy to parse.
      */
-    public static Message Parse(String baseMessageType, File descriptorFile, File baseFile) throws InvalidProtocolBufferException {
+    public static Message Parse(String baseMessageType, InputStream descriptorFile, String jsonContent) throws IOException {
 
         byte[] descriptorBytes;
         try {
-            descriptorBytes = Files.readAllBytes(descriptorFile.toPath());
+            descriptorBytes = descriptorFile.readAllBytes();
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
-        DescriptorProtos.FileDescriptorProto descriptorProto = DescriptorProtos.FileDescriptorProto.parseFrom(descriptorBytes);
 
-        // Just make it compile for now. We'll need to find the matching message, then parse the contents of
-        // baseFile into it.
-        return descriptorProto.getMessageTypeList().getFirst().newBuilderForType().build();
+
+        DescriptorProtos.FileDescriptorSet descriptorSet = DescriptorProtos.FileDescriptorSet.parseFrom(descriptorBytes);
+        List<DescriptorProtos.DescriptorProto> descriptorProtos = descriptorSet.getFileList().stream().flatMap(e -> e.getMessageTypeList().stream()).toList();
+        List<DescriptorProtos.DescriptorProto> candidates = descriptorProtos.stream().filter(e -> e.getName().equals(baseMessageType)).toList();
+
+        if (candidates.stream().findAny().isEmpty()) {
+            throw new IllegalArgumentException("Message type not found in descriptor set. Candidates: "
+                    + String.join(", ", descriptorProtos.stream().map(DescriptorProtos.DescriptorProto::getName).toList()));
+        } else if (candidates.size() > 1) {
+            throw new IllegalArgumentException("Found multiple candidate matches.");
+        }
+        DescriptorProtos.DescriptorProto descriptorProto = candidates.getFirst();
+
+
+//        Message.Builder builder = descriptorProto.newBuilderForType();
+//        com.google.protobuf.util.JsonFormat;
+//        JsonFormat.parser().ignoringUnknownFields().merge(json, structBuilder);
+//        return structBuilder.build();
+//
+        Descriptors.Descriptor descriptor = descriptorProto.getDescriptorForType();
+        DynamicMessage.Builder dynamicBuilder = DynamicMessage.newBuilder(descriptor);
+
+
+//        dynamicBuilder.getDefaultInstanceForType().buil
+
+
+        com.google.protobuf.util.JsonFormat.parser().merge(jsonContent, dynamicBuilder);
+        Message message = dynamicBuilder.build();
+        return message;
     }
 }

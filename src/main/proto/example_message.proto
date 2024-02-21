@@ -1,11 +1,11 @@
 syntax = "proto3";
 
-message nested_message {
+message NestedMessage {
   int32 int_field = 1;
   string string_field = 2;
 }
 
-message base_message {
+message BaseMessage {
   int32 base_message_field = 1;
-  nested_message nested_field = 2;
+  NestedMessage nested_field = 2;
 }

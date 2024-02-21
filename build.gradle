@@ -1,0 +1,47 @@
+buildscript {
+    ext {
+//        protobufVersion = '4.26.0-RC2'
+        protobufVersion = '3.22.2'
+    }
+}
+
+plugins {
+    id("com.google.protobuf") version "0.9.4"
+    id("java")
+}
+
+group = "joedean"
+version = "1.0-SNAPSHOT"
+
+repositories {
+    mavenCentral()
+}
+
+dependencies {
+    testImplementation(platform("org.junit:junit-bom:5.9.1"))
+    testImplementation("org.junit.jupiter:junit-jupiter")
+    implementation("com.google.protobuf:protobuf-java:${protobufVersion}")
+    implementation("com.google.protobuf:protobuf-java-util:${protobufVersion}")
+}
+
+tasks.test {
+    useJUnitPlatform()
+}
+
+protobuf {
+    protoc {
+        artifact = "com.google.protobuf:protoc:${protobufVersion}"
+    }
+
+    // For now I'm generating the descriptor set as part of the main project. This should likely be a Test resource.
+    generateProtoTasks {
+        all().configureEach{ task ->
+            // Generate descriptor set, include file/line numbers for debug, include transitive imports.
+            task.descriptorSetOptions.path =
+                    "${projectDir}/build/resources/test/${task.sourceSet.name}.dsc"
+            task.generateDescriptorSet = true
+            task.descriptorSetOptions.includeSourceInfo = true
+            task.descriptorSetOptions.includeImports = true
+        }
+    }
+}
