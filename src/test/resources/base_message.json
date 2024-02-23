@@ -1,7 +1,7 @@
 {
-  "base_message_field": 1,
-  "nested_field" : {
-    "int_field" : 1,
-    "string_field" : "one"
+  "base": 1,
+  "nested" : {
+    "int" : 1,
+    "string" : "one"
   }
 }

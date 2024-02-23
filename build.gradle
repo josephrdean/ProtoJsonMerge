@@ -1,7 +1,7 @@
 buildscript {
     ext {
-//        protobufVersion = '4.26.0-RC2'
-        protobufVersion = '3.22.2'
+        protobufVersion = '4.26.0-RC2'
+//        protobufVersion = '3.22.2'
     }
 }
 
