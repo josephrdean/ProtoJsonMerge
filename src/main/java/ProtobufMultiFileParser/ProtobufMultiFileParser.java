@@ -75,8 +75,9 @@ public class ProtobufMultiFileParser {
                     throw new RuntimeException("IOException when attempting to open file " + file.getPath());
                 }
             } else { // This is a directory
-
-                if (fieldDescriptor.isRepeated()) {
+                if (fieldDescriptor.isMapField()) {
+                    parseDirectoryAsMap(file, fieldDescriptor, builder);
+                } else if (fieldDescriptor.isRepeated()) {
                     parseDirectoryAsRepeated(file, fieldDescriptor, builder);
                 } else {
                     Message.Builder fieldBuilder = builder.getFieldBuilder(fieldDescriptor);
@@ -88,19 +89,7 @@ public class ProtobufMultiFileParser {
 
     private static void parseDirectoryAsRepeated(File directory, Descriptors.FieldDescriptor descriptor, Message.Builder parentBuilder) {
 
-        Descriptors.FieldDescriptor valueDescriptor;
-        if (descriptor.isMapField()) {
-            Descriptors.FieldDescriptor keyDescriptor = descriptor.getMessageType().findFieldByName("key");
-            if (keyDescriptor.getType() != Descriptors.FieldDescriptor.Type.STRING) {
-                throw new RuntimeException("Field " + descriptor.getName() + " had key type " + keyDescriptor.getMessageType().toString() + " but only String is supported");
-            }
-            valueDescriptor = descriptor.getMessageType().findFieldByName("value");
-        } else {
-            valueDescriptor = descriptor;
-        }
-
-//        Descriptors.FieldDescriptor valueDescriptor = descriptor.getMessageType().findFieldByName("value");
-        if (valueDescriptor.getType() != Descriptors.FieldDescriptor.Type.MESSAGE) {
+        if (descriptor.getType() != Descriptors.FieldDescriptor.Type.MESSAGE) {
             throw new RuntimeException("Repeated field " + descriptor.getName() + " value type was not Message.");
         }
 
@@ -108,10 +97,6 @@ public class ProtobufMultiFileParser {
             // Skip hidden files, including filesystem pointers '.' and '..'
             if (file.getName().startsWith(".")) {
                 continue;
-            }
-
-            if (descriptor.isMapField()) {
-                continue; // TODO Implement me
             }
 
             Message.Builder fieldBuilder = parentBuilder.newBuilderForField(descriptor);
@@ -123,6 +108,36 @@ public class ProtobufMultiFileParser {
 
             parentBuilder.addRepeatedField(descriptor, fieldBuilder.build());
         }
+    }
 
+    private static void parseDirectoryAsMap(File directory, Descriptors.FieldDescriptor descriptor, Message.Builder parentBuilder) {
+
+        Descriptors.FieldDescriptor keyDescriptor = descriptor.getMessageType().findFieldByName("key");
+        if (keyDescriptor.getType() != Descriptors.FieldDescriptor.Type.STRING) {
+            throw new RuntimeException("Map field " + descriptor.getName() + " had key type " + keyDescriptor.getMessageType().toString() + " but only String is supported");
+        }
+
+        Descriptors.FieldDescriptor valueDescriptor = descriptor.getMessageType().findFieldByName("value");
+        if (valueDescriptor.getType() != Descriptors.FieldDescriptor.Type.MESSAGE) {
+            throw new RuntimeException("Map field " + descriptor.getName() + " value type was not Message.");
+        }
+
+        for (File file: directory.listFiles()) {
+            // Skip hidden files, including filesystem pointers '.' and '..'
+            if (file.getName().startsWith(".")) {
+                continue;
+            }
+
+            Message.Builder mapEntryBuilder = parentBuilder.newBuilderForField(descriptor);
+            String fileName = FilenameUtils.getBaseName(file.getName());
+            mapEntryBuilder.setField(keyDescriptor, fileName);
+            Message.Builder valueBuilder = mapEntryBuilder.getFieldBuilder(valueDescriptor);
+            try {
+                JsonFormat.parser().merge(Files.readString(file.toPath()), valueBuilder);
+            } catch (IOException e) {
+                throw new RuntimeException("IOException when attempting to open file " + file.getPath());
+            }
+            parentBuilder.addRepeatedField(descriptor, mapEntryBuilder.build());
+        }
     }
 }

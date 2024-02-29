@@ -58,25 +58,20 @@ public class TestProtobufMultiFileParser {
         }
     }
 
+    // Tests the success case of merging all file types (message as file, list of files, map of files)
     @Test
-    void testBasicTestCase() throws Descriptors.DescriptorValidationException, IOException {
+    void testMultiFileParsing() throws Descriptors.DescriptorValidationException, IOException {
         URL descriptorFile = getClass().getClassLoader().getResource("main.dsc");
         URL contentRoot = getClass().getClassLoader().getResource("base_message.json");
         Message message = ProtobufMultiFileParser.Parse("BaseMessage", descriptorFile, contentRoot);
 
-        Integer baseField = (Integer) message.getField(message.getDescriptorForType().findFieldByName("base"));
-        Assertions.assertEquals(1, baseField);
+        byte[] messageBytes = message.toByteArray();
+        ExampleMessage.BaseMessage baseMessage = ExampleMessage.BaseMessage.parseFrom(messageBytes);
 
-        Message nestedMessage = (Message)message.getField(message.getDescriptorForType().findFieldByName("nested"));
-        Integer nestedInt = (Integer)nestedMessage.getField(nestedMessage.getDescriptorForType().findFieldByName("int"));
-        Assertions.assertEquals(7, nestedInt);
-    }
-
-    void testRepeated() {
-
-    }
-
-    void testMap() {
-
+        Assertions.assertEquals(1, baseMessage.getBase());
+        Assertions.assertEquals(7, baseMessage.getNested().getInt());
+        Assertions.assertEquals("repeated", baseMessage.getRepeatedList().getFirst().getString());
+        Assertions.assertEquals("first_map", baseMessage.getMapMap().get("first").getString());
+        Assertions.assertEquals("second_map", baseMessage.getMapMap().get("second").getString());
     }
 }
