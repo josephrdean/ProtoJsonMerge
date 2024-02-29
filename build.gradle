@@ -1,7 +1,6 @@
 buildscript {
     ext {
         protobufVersion = '4.26.0-RC2'
-//        protobufVersion = '3.22.2'
     }
 }
 
@@ -22,6 +21,7 @@ dependencies {
     testImplementation("org.junit.jupiter:junit-jupiter")
     implementation("com.google.protobuf:protobuf-java:${protobufVersion}")
     implementation("com.google.protobuf:protobuf-java-util:${protobufVersion}")
+    implementation("commons-io:commons-io:2.15.1")
 }
 
 tasks.test {

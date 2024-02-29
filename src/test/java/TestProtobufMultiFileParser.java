@@ -60,8 +60,23 @@ public class TestProtobufMultiFileParser {
 
     @Test
     void testBasicTestCase() throws Descriptors.DescriptorValidationException, IOException {
-        URL descriptor = getClass().getClassLoader().getResource("main.dsc");
+        URL descriptorFile = getClass().getClassLoader().getResource("main.dsc");
         URL contentRoot = getClass().getClassLoader().getResource("base_message.json");
-        Message message = ProtobufMultiFileParser.Parse("BaseMessage", descriptor, contentRoot);
+        Message message = ProtobufMultiFileParser.Parse("BaseMessage", descriptorFile, contentRoot);
+
+        Integer baseField = (Integer) message.getField(message.getDescriptorForType().findFieldByName("base"));
+        Assertions.assertEquals(1, baseField);
+
+        Message nestedMessage = (Message)message.getField(message.getDescriptorForType().findFieldByName("nested"));
+        Integer nestedInt = (Integer)nestedMessage.getField(nestedMessage.getDescriptorForType().findFieldByName("int"));
+        Assertions.assertEquals(7, nestedInt);
+    }
+
+    void testRepeated() {
+
+    }
+
+    void testMap() {
+
     }
 }

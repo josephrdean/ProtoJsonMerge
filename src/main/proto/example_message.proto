@@ -8,4 +8,6 @@ message NestedMessage {
 message BaseMessage {
   int32 base = 1;
   NestedMessage nested = 2;
+  repeated NestedMessage repeated = 3;
+  map<string, NestedMessage> map = 4;
 }
