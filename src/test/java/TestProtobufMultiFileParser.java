@@ -1,6 +1,9 @@
 import ProtobufMultiFileParser.ProtobufMultiFileParser;
+import ProtobufMultiFileParser.MultiJsonMergerExtension;
 import com.google.protobuf.*;
 import com.google.protobuf.util.JsonFormat;
+import org.gradle.api.Project;
+import org.gradle.testfixtures.ProjectBuilder;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
@@ -73,5 +76,13 @@ public class TestProtobufMultiFileParser {
         Assertions.assertEquals("repeated", baseMessage.getRepeatedList().getFirst().getString());
         Assertions.assertEquals("first_map", baseMessage.getMapMap().get("first").getString());
         Assertions.assertEquals("second_map", baseMessage.getMapMap().get("second").getString());
+    }
+
+    @Test
+    void testPlugin() {
+        MultiJsonMergerExtension config = new MultiJsonMergerExtension();
+
+        Project project = ProjectBuilder.builder().build();
+        project.getPluginManager().apply("org.jdean.protobuf_multi_json_merger");
     }
 }

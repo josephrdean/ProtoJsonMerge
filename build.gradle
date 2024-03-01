@@ -8,6 +8,7 @@ plugins {
     id("com.google.protobuf") version "0.9.4"
     id("java")
     id("java-gradle-plugin")
+    id("maven-publish")
 }
 
 group = "jdean"
