@@ -7,9 +7,10 @@ buildscript {
 plugins {
     id("com.google.protobuf") version "0.9.4"
     id("java")
+    id("java-gradle-plugin")
 }
 
-group = "joedean"
+group = "jdean"
 version = "1.0-SNAPSHOT"
 
 repositories {
@@ -42,6 +43,16 @@ protobuf {
             task.generateDescriptorSet = true
             task.descriptorSetOptions.includeSourceInfo = true
             task.descriptorSetOptions.includeImports = true
+        }
+    }
+}
+
+gradlePlugin {
+    plugins {
+        simplePlugin {
+            id = 'org.jdean.protobuf_multi_json_merger'
+            // Todo fix package names...
+            implementationClass = 'ProtobufMultiFileParser.MultiJsonMergerPlugin'
         }
     }
 }
