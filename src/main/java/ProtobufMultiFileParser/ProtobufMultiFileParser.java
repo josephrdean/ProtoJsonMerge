@@ -6,11 +6,10 @@ import org.apache.commons.io.FilenameUtils;
 
 import java.io.File;
 import java.io.IOException;
-import java.net.MalformedURLException;
 import java.net.URL;
 import java.nio.file.Files;
-import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.Objects;
 
 public class ProtobufMultiFileParser {
 
@@ -93,7 +92,7 @@ public class ProtobufMultiFileParser {
             throw new RuntimeException("Repeated field " + descriptor.getName() + " value type was not Message.");
         }
 
-        for (File file: directory.listFiles()) {
+        for (File file: Objects.requireNonNull(directory.listFiles())) {
             // Skip hidden files, including filesystem pointers '.' and '..'
             if (file.getName().startsWith(".")) {
                 continue;
@@ -122,7 +121,7 @@ public class ProtobufMultiFileParser {
             throw new RuntimeException("Map field " + descriptor.getName() + " value type was not Message.");
         }
 
-        for (File file: directory.listFiles()) {
+        for (File file: Objects.requireNonNull(directory.listFiles())) {
             // Skip hidden files, including filesystem pointers '.' and '..'
             if (file.getName().startsWith(".")) {
                 continue;

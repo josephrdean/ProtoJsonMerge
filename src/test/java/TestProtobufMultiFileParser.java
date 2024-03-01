@@ -5,7 +5,6 @@ import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
 import java.io.IOException;
-import java.io.InputStream;
 import java.net.URL;
 
 public class TestProtobufMultiFileParser {
@@ -63,6 +62,7 @@ public class TestProtobufMultiFileParser {
     void testMultiFileParsing() throws Descriptors.DescriptorValidationException, IOException {
         URL descriptorFile = getClass().getClassLoader().getResource("main.dsc");
         URL contentRoot = getClass().getClassLoader().getResource("base_message.json");
+        assert descriptorFile != null;
         Message message = ProtobufMultiFileParser.Parse("BaseMessage", descriptorFile, contentRoot);
 
         byte[] messageBytes = message.toByteArray();
