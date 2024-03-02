@@ -1,5 +1,4 @@
 import ProtobufMultiFileParser.ProtobufMultiFileParser;
-import ProtobufMultiFileParser.MultiJsonMergerExtension;
 import com.google.protobuf.*;
 import com.google.protobuf.util.JsonFormat;
 import org.gradle.api.Project;
@@ -80,8 +79,6 @@ public class TestProtobufMultiFileParser {
 
     @Test
     void testPlugin() {
-        MultiJsonMergerExtension config = new MultiJsonMergerExtension();
-
         Project project = ProjectBuilder.builder().build();
         project.getPluginManager().apply("org.jdean.proto-json-merge");
     }
