@@ -83,6 +83,6 @@ public class TestProtobufMultiFileParser {
         MultiJsonMergerExtension config = new MultiJsonMergerExtension();
 
         Project project = ProjectBuilder.builder().build();
-        project.getPluginManager().apply("org.jdean.protobuf_multi_json_merger");
+        project.getPluginManager().apply("org.jdean.proto-json-merge");
     }
 }

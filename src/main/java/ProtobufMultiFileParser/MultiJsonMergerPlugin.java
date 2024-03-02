@@ -15,7 +15,7 @@ import java.nio.file.Path;
 public class MultiJsonMergerPlugin implements Plugin<Project> {
     @Override
     public void apply(Project project) {
-        MultiJsonMergerExtension config = project.getExtensions().create("proto_json_merge", MultiJsonMergerExtension.class);
+        MultiJsonMergerExtension config = project.getExtensions().create("proto-json-merge", MultiJsonMergerExtension.class);
 
         project.task("mergeJson").doLast(task -> applyInternal(config));
     }

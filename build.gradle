@@ -51,7 +51,9 @@ protobuf {
 gradlePlugin {
     plugins {
         simplePlugin {
-            id = 'org.jdean.protobuf_multi_json_merger'
+//            id = 'org.jdean.protobuf_multi_json_merger'
+//            id = "proto-json-merge"
+            id = "org.jdean.proto-json-merge"
             // Todo fix package names...
             implementationClass = 'ProtobufMultiFileParser.MultiJsonMergerPlugin'
         }
