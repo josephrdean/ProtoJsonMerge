@@ -16,14 +16,15 @@ import java.util.Objects;
 public class ProtobufMultiFileParser {
 
     /**
-     *
      * @param baseMessageType The name of the root message type.
-     * @param descriptorPath The protoc generated Descriptor File that holds definitions of the message
-     *                       classes we're parsing.
-     * @param contentRoot The URL of the root object to parse.
+     * @param descriptorPath  The protoc generated Descriptor File that holds definitions of the message
+     *                        classes we're parsing.
+     * @param contentRoot     The URL of the root object to parse.
      */
-    public static Message Parse(String baseMessageType, Path descriptorPath, Path contentRoot) throws IOException, Descriptors.DescriptorValidationException {
-                InputStream descriptorStream = new FileInputStream(descriptorPath.toFile());
+    public static Message Parse(String baseMessageType,
+                                Path descriptorPath,
+                                Path contentRoot) throws IOException, Descriptors.DescriptorValidationException {
+        InputStream descriptorStream = new FileInputStream(descriptorPath.toFile());
         DescriptorProtos.FileDescriptorSet descriptorSet = DescriptorProtos.FileDescriptorSet.parseFrom(descriptorStream);
 
         TypeRegistry.Builder typeRegistryBuilder = TypeRegistry.newBuilder();
@@ -39,7 +40,8 @@ public class ProtobufMultiFileParser {
         String content = Files.readString(contentRoot);
         JsonFormat.parser().merge(content, messageBuilder);
 
-        Path contentDir = Paths.get(contentRoot.getParent().toString(), FilenameUtils.getBaseName(contentRoot.getFileName().toString()));
+        Path contentDir = Paths.get(contentRoot.getParent().toString(),
+                FilenameUtils.getBaseName(contentRoot.getFileName().toString()));
         parseDirectoryAsMessage(contentDir, messageBuilder);
 
         return messageBuilder.build();
@@ -49,7 +51,7 @@ public class ProtobufMultiFileParser {
 
         // Can't return null as we get this from a known file
         //noinspection DataFlowIssue
-        for (File file: directoryPath.toFile().listFiles()) {
+        for (File file : directoryPath.toFile().listFiles()) {
             // Skip hidden files, including filesystem pointers '.' and '..'
             if (file.getName().startsWith(".")) {
                 continue;
@@ -65,7 +67,8 @@ public class ProtobufMultiFileParser {
             if (file.isFile()) {
 
                 if (!fieldDescriptor.getType().equals(Descriptors.FieldDescriptor.Type.MESSAGE)) {
-                    throw new RuntimeException("Expected " + fieldName + " to be of type message, but was " + fieldDescriptor.getType().name());
+                    throw new RuntimeException("Expected " + fieldName +
+                            " to be of type message, but was " + fieldDescriptor.getType().name());
                 }
 
                 try {
@@ -87,13 +90,15 @@ public class ProtobufMultiFileParser {
         }
     }
 
-    private static void parseDirectoryAsRepeated(File directory, Descriptors.FieldDescriptor descriptor, Message.Builder parentBuilder) {
+    private static void parseDirectoryAsRepeated(File directory,
+                                                 Descriptors.FieldDescriptor descriptor,
+                                                 Message.Builder parentBuilder) {
 
         if (descriptor.getType() != Descriptors.FieldDescriptor.Type.MESSAGE) {
             throw new RuntimeException("Repeated field " + descriptor.getName() + " value type was not Message.");
         }
 
-        for (File file: Objects.requireNonNull(directory.listFiles())) {
+        for (File file : Objects.requireNonNull(directory.listFiles())) {
             // Skip hidden files, including filesystem pointers '.' and '..'
             if (file.getName().startsWith(".")) {
                 continue;
@@ -110,11 +115,16 @@ public class ProtobufMultiFileParser {
         }
     }
 
-    private static void parseDirectoryAsMap(File directory, Descriptors.FieldDescriptor descriptor, Message.Builder parentBuilder) {
+    private static void parseDirectoryAsMap(File directory,
+                                            Descriptors.FieldDescriptor descriptor,
+                                            Message.Builder parentBuilder) {
 
         Descriptors.FieldDescriptor keyDescriptor = descriptor.getMessageType().findFieldByName("key");
         if (keyDescriptor.getType() != Descriptors.FieldDescriptor.Type.STRING) {
-            throw new RuntimeException("Map field " + descriptor.getName() + " had key type " + keyDescriptor.getMessageType().toString() + " but only String is supported");
+            throw new RuntimeException(
+                    "Map field " + descriptor.getName() +
+                    " had key type " + keyDescriptor.getMessageType().toString() +
+                    " but only String is supported");
         }
 
         Descriptors.FieldDescriptor valueDescriptor = descriptor.getMessageType().findFieldByName("value");
@@ -122,7 +132,7 @@ public class ProtobufMultiFileParser {
             throw new RuntimeException("Map field " + descriptor.getName() + " value type was not Message.");
         }
 
-        for (File file: Objects.requireNonNull(directory.listFiles())) {
+        for (File file : Objects.requireNonNull(directory.listFiles())) {
             // Skip hidden files, including filesystem pointers '.' and '..'
             if (file.getName().startsWith(".")) {
                 continue;
