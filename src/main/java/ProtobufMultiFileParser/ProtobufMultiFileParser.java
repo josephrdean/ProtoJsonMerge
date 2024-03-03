@@ -61,7 +61,6 @@ public class ProtobufMultiFileParser {
                 throw new RuntimeException("Could not find field " + fieldName);
             }
 
-
             // If we have a file foo.json, we expect a field foo in the message
             if (file.isFile()) {
 

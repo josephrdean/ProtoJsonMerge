@@ -67,8 +67,7 @@ public abstract class MergeJsonTask extends DefaultTask {
                 throw new RuntimeException(e);
             }
             try {
-                Path jsonPath = Paths.get(projectPath, getOutputJson().get());
-                Files.write(jsonPath, jsonContent.getBytes());
+                Files.write(Paths.get(projectPath, getOutputJson().get()), jsonContent.getBytes());
             } catch (IOException e) {
                 throw new RuntimeException(e);
             }
