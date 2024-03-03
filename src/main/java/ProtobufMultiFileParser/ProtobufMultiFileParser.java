@@ -5,9 +5,11 @@ import com.google.protobuf.util.JsonFormat;
 import org.apache.commons.io.FilenameUtils;
 
 import java.io.File;
+import java.io.FileInputStream;
 import java.io.IOException;
-import java.net.URL;
+import java.io.InputStream;
 import java.nio.file.Files;
+import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.Objects;
 
@@ -16,12 +18,13 @@ public class ProtobufMultiFileParser {
     /**
      *
      * @param baseMessageType The name of the root message type.
-     * @param descriptorFile The protoc generated Descriptor File that holds definitions of the message
+     * @param descriptorPath The protoc generated Descriptor File that holds definitions of the message
      *                       classes we're parsing.
      * @param contentRoot The URL of the root object to parse.
      */
-    public static Message Parse(String baseMessageType, URL descriptorFile, URL contentRoot) throws IOException, Descriptors.DescriptorValidationException {
-        DescriptorProtos.FileDescriptorSet descriptorSet = DescriptorProtos.FileDescriptorSet.parseFrom(descriptorFile.openStream());
+    public static Message Parse(String baseMessageType, Path descriptorPath, Path contentRoot) throws IOException, Descriptors.DescriptorValidationException {
+                InputStream descriptorStream = new FileInputStream(descriptorPath.toFile());
+        DescriptorProtos.FileDescriptorSet descriptorSet = DescriptorProtos.FileDescriptorSet.parseFrom(descriptorStream);
 
         TypeRegistry.Builder typeRegistryBuilder = TypeRegistry.newBuilder();
         for (var e : descriptorSet.getFileList()) {
@@ -33,21 +36,20 @@ public class ProtobufMultiFileParser {
         Descriptors.Descriptor descriptor = typeRegistry.find(baseMessageType);
         DynamicMessage.Builder messageBuilder = DynamicMessage.newBuilder(descriptor);
 
-        String content = new String(contentRoot.openStream().readAllBytes());
+        String content = Files.readString(contentRoot);
         JsonFormat.parser().merge(content, messageBuilder);
 
-        // Strip the .json extension to get the path of the target folder to start the recursion for content
-        String contentDir = FilenameUtils.getPath(contentRoot.getPath()) + FilenameUtils.getBaseName(contentRoot.getPath());
+        Path contentDir = Paths.get(contentRoot.getParent().toString(), FilenameUtils.getBaseName(contentRoot.getFileName().toString()));
         parseDirectoryAsMessage(contentDir, messageBuilder);
 
         return messageBuilder.build();
     }
 
-    private static void parseDirectoryAsMessage(String directoryPath, Message.Builder builder) {
+    private static void parseDirectoryAsMessage(Path directoryPath, Message.Builder builder) {
 
         // Can't return null as we get this from a known file
         //noinspection DataFlowIssue
-        for (File file: Paths.get(directoryPath).toFile().listFiles()) {
+        for (File file: directoryPath.toFile().listFiles()) {
             // Skip hidden files, including filesystem pointers '.' and '..'
             if (file.getName().startsWith(".")) {
                 continue;
@@ -80,7 +82,7 @@ public class ProtobufMultiFileParser {
                     parseDirectoryAsRepeated(file, fieldDescriptor, builder);
                 } else {
                     Message.Builder fieldBuilder = builder.getFieldBuilder(fieldDescriptor);
-                    parseDirectoryAsMessage(file.getPath(), fieldBuilder);
+                    parseDirectoryAsMessage(file.toPath(), fieldBuilder);
                 }
             }
         }

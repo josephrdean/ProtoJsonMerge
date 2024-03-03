@@ -10,7 +10,6 @@ import org.gradle.api.tasks.Input;
 import org.gradle.api.tasks.TaskAction;
 
 import java.io.IOException;
-import java.net.URL;
 import java.nio.file.Files;
 import java.nio.file.Path;
 
@@ -33,18 +32,23 @@ public abstract class MergeJsonTask extends DefaultTask {
 
     @TaskAction
     public void mergeJson() {
-        System.out.println("Invoked with " + getDescriptorFilePath().get());
+        applyInternal();
     }
 
     private void applyInternal() {
-        URL descriptorFile = getClass().getClassLoader().getResource(getDescriptorFilePath().get());
-        assert descriptorFile != null;
-        URL contentRoot = getClass().getClassLoader().getResource(getContentRoot().get());
-        assert contentRoot != null;
+        Path descriptorPath = Path.of(getDescriptorFilePath().get());
+        if (!descriptorPath.toFile().exists()) {
+            throw new RuntimeException("Descriptor file does not exist. Target path: " + descriptorPath);
+        }
+
+        Path contentPath = Path.of(getContentRoot().get());
+        if (!contentPath.toFile().exists()) {
+            throw new RuntimeException("Content Root does not exist. Target path: " + contentPath);
+        }
 
         Message content;
         try {
-            content = ProtobufMultiFileParser.Parse(getMessageType().get(), descriptorFile, contentRoot);
+            content = ProtobufMultiFileParser.Parse(getMessageType().get(), descriptorPath, contentPath);
         } catch (IOException | Descriptors.DescriptorValidationException e) {
             throw new RuntimeException(e);
         }

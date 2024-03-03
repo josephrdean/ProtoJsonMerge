@@ -7,10 +7,12 @@ import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
 import java.io.IOException;
+import java.net.URISyntaxException;
 import java.net.URL;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 
 public class TestProtobufMultiFileParser {
-
 
     /**
      * Dynamic parsing with protobuf took me a little effort to get right, so I'm leaving this test case.
@@ -61,11 +63,14 @@ public class TestProtobufMultiFileParser {
 
     // Tests the success case of merging all file types (message as file, list of files, map of files)
     @Test
-    void testMultiFileParsing() throws Descriptors.DescriptorValidationException, IOException {
+    void testMultiFileParsing() throws Descriptors.DescriptorValidationException, IOException, URISyntaxException {
         URL descriptorFile = getClass().getClassLoader().getResource("main.dsc");
         URL contentRoot = getClass().getClassLoader().getResource("base_message.json");
         assert descriptorFile != null;
-        Message message = ProtobufMultiFileParser.Parse("BaseMessage", descriptorFile, contentRoot);
+        assert contentRoot != null;
+        Path descriptorPath = Paths.get(descriptorFile.toURI());
+        Path contentPath = Paths.get(contentRoot.toURI());
+        Message message = ProtobufMultiFileParser.Parse("BaseMessage", descriptorPath, contentPath);
 
         byte[] messageBytes = message.toByteArray();
         ExampleMessage.BaseMessage baseMessage = ExampleMessage.BaseMessage.parseFrom(messageBytes);
