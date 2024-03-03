@@ -7,11 +7,13 @@ import com.google.protobuf.util.JsonFormat;
 import org.gradle.api.DefaultTask;
 import org.gradle.api.provider.Property;
 import org.gradle.api.tasks.Input;
+import org.gradle.api.tasks.Optional;
 import org.gradle.api.tasks.TaskAction;
 
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.nio.file.Paths;
 
 public abstract class MergeJsonTask extends DefaultTask {
 
@@ -25,9 +27,11 @@ public abstract class MergeJsonTask extends DefaultTask {
     public abstract Property<String> getMessageType();
 
     @Input
+    @Optional
     public abstract Property<String> getOutputJson();
 
     @Input
+    @Optional
     public abstract Property<String> getOutputPb();
 
     @TaskAction
@@ -36,12 +40,14 @@ public abstract class MergeJsonTask extends DefaultTask {
     }
 
     private void applyInternal() {
-        Path descriptorPath = Path.of(getDescriptorFilePath().get());
+        String projectPath = getProject().getProjectDir().getPath();
+
+        Path descriptorPath = Paths.get(projectPath, getDescriptorFilePath().get());
         if (!descriptorPath.toFile().exists()) {
             throw new RuntimeException("Descriptor file does not exist. Target path: " + descriptorPath);
         }
 
-        Path contentPath = Path.of(getContentRoot().get());
+        Path contentPath = Paths.get(projectPath, getContentRoot().get());
         if (!contentPath.toFile().exists()) {
             throw new RuntimeException("Content Root does not exist. Target path: " + contentPath);
         }
@@ -61,7 +67,8 @@ public abstract class MergeJsonTask extends DefaultTask {
                 throw new RuntimeException(e);
             }
             try {
-                Files.write(Path.of(getOutputJson().get()), jsonContent.getBytes());
+                Path jsonPath = Paths.get(projectPath, getOutputJson().get());
+                Files.write(jsonPath, jsonContent.getBytes());
             } catch (IOException e) {
                 throw new RuntimeException(e);
             }
@@ -69,7 +76,8 @@ public abstract class MergeJsonTask extends DefaultTask {
 
         if (getOutputPb().isPresent()) {
             try {
-                Files.write(Path.of(getOutputPb().get()), content.toByteArray());
+                Path pbPath = Paths.get(projectPath, getOutputPb().get());
+                Files.write(pbPath, content.toByteArray());
             } catch (IOException e) {
                 throw new RuntimeException(e);
             }
