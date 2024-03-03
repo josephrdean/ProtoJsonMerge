@@ -1,4 +1,4 @@
-package ProtobufMultiFileParser;
+package protojsonmerge;
 
 import com.google.protobuf.*;
 import com.google.protobuf.util.JsonFormat;

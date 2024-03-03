@@ -52,7 +52,7 @@ gradlePlugin {
     plugins {
         simplePlugin {
             id = "org.jdean.proto-json-merge"
-            implementationClass = 'ProtobufMultiFileParser.MultiJsonMergerPlugin'
+            implementationClass = 'protojsonmerge.ProtoJsonMergePlugin'
         }
     }
 }

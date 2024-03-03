@@ -1,4 +1,4 @@
-package ProtobufMultiFileParser;
+package protojsonmerge;
 
 import com.google.protobuf.Descriptors;
 import com.google.protobuf.InvalidProtocolBufferException;

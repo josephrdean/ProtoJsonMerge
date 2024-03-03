@@ -1,4 +1,4 @@
-package ProtobufMultiFileParser;
+package protojsonmerge;
 
 import org.gradle.api.Plugin;
 import org.gradle.api.Project;
@@ -6,7 +6,7 @@ import org.gradle.api.Task;
 
 // Code analysis thinks this is unused, but it being a Gradle Plugin gets picked up.
 @SuppressWarnings("unused")
-public class MultiJsonMergerPlugin implements Plugin<Project> {
+public class ProtoJsonMergePlugin implements Plugin<Project> {
     @Override
     public void apply(Project project) {
         Task mergeTask = project.getTasks().create("mergeJson", MergeJsonTask.class);

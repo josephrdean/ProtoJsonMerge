@@ -1,2 +1,2 @@
-rootProject.name = "ProtobufMultiFileParser"
+rootProject.name = "ProtoJsonMerge"
 

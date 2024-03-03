@@ -1,4 +1,4 @@
-import ProtobufMultiFileParser.ProtobufMultiFileParser;
+import protojsonmerge.ProtobufMultiFileParser;
 import com.google.protobuf.*;
 import com.google.protobuf.util.JsonFormat;
 import org.gradle.api.Project;
